@@ -1,4 +1,50 @@
+from tkinter import font
 import pygame
+
+#########################
+## Font Initialization ##
+#########################
+
+defaultfont = "sfns"
+fontpathdict = {}
+fontdict = {}
+
+# I might add support for bold and italics here
+def getFont(fontname, fontsize):
+    if fontname not in fontpathdict:
+        if fontname in pygame.font.get_fonts():
+            fontpathdict[fontname] = pygame.font.match_font(fontname)
+        else:
+            message = """You do not have the font %s installed. A list of avalible fonts may be found with pygame.font.get_fonts().""" % fontname
+            raise pygame.error(message)
+
+    if (fontname, fontsize) not in fontdict:
+        fontdict[(fontname, fontsize)] = pygame.font.Font(fontpathdict[fontname], fontsize)
+
+    return fontdict[(fontname, fontsize)]
+
+
+#############
+## Helpers ##
+#############
+
+def drawRoundedRect(surface, color, rect, rad=None):
+    if rad is None:
+        rad = min(rect[2], rect[3])//3
+
+    pygame.draw.rect(surface, color,
+                     [rect[0]+rad, rect[1], rect[2]-(rad*2), rect[3]])
+    pygame.draw.rect(surface, color,
+                     [rect[0], rect[1]+rad, rect[2], rect[3]-(rad*2)])
+
+    circlecenters = [(rect[0]+rad, rect[1]+rad),
+                     (rect[0]+rect[2]-(rad+1), rect[1]+rad),
+                     (rect[0]+rad, rect[1]+rect[3]-(rad+1)),
+                     (rect[0]+rect[2]-(rad+1), rect[1]+rect[3]-(rad+1))]
+
+    for cc in circlecenters:
+        pygame.gfxdraw.aacircle(surface, cc[0], cc[1], rad, color)
+        pygame.gfxdraw.filled_circle(surface, cc[0], cc[1], rad, color)
 
 #############
 ## Classes ##
@@ -93,20 +139,28 @@ class UIObjectGroup:
         for o in self.objects:
             o.reset()
 
+class Textbox(UIObject):
+    def __init__(self, rect, color, text = "", fontname = None, fontsize = None, onUpdate = None):
+        super().__init__(rect,color,onUpdate)
+        self.text = text
+
+        if fontname is None:
+            fontname = "sfns"
+        if fontsize is None:
+            fontsize = 12
+        self.font = getFont(fontname, fontsize)
+
 class Button(UIObject):
     ...
-
+    
 class Slider(UIObject):
     ...
 
-class Button(UIObject):
+class Toggle(UIObject):
     ...
 
 #############
 ## Globals ##
 #############
-all_objects = UIObjectGroup()
 
-###############
-## Functions ##
-###############
+all_objects = UIObjectGroup()
