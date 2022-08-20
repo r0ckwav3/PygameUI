@@ -11,7 +11,7 @@ class UIObject:
     # rect: int[4]
     # color: int[3] or pygame.color
     # onUpdate: function
-    def __init__(self, rect, color, onUpdate):
+    def __init__(self, rect, color, onUpdate = None):
         self.rect = rect
         self.color = color
         self.onUpdate = onUpdate
@@ -31,9 +31,14 @@ class UIObject:
     def handleEvent(self, event):
         pass
     
+    # moves the uiobject by a certain amount
+    # drect: int[4]
+    def move(self, dpos):
+        self.rect = [self.rect[0]+dpos[0],self.rect[1]+dpos[1],self.rect[2],self.rect[3]]
+
     # moves the uiobject to a new location
     # newrect: int[4]
-    def move(self, newrect):
+    def setRect(self, newrect):
         self.rect = newrect
 
     # gets the current rectangle
