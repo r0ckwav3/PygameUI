@@ -7,12 +7,14 @@ import pygame
 # base ui object
 # if used, draws a solid rectangle
 class UIObject:
-    # initialization
+    # initialization see handleEvent for use of onUpdate
     # rect: int[4]
     # color: int[3] or pygame.color
-    def __init__(self, rect, color):
+    # onUpdate: function
+    def __init__(self, rect, color, onUpdate):
         self.rect = rect
         self.color = color
+        self.onUpdate = onUpdate
     
     # draws the object onto the given surface and returns that surface
     # surface: pygame.Surface
@@ -21,7 +23,8 @@ class UIObject:
         pygame.draw.rect(surface, self.color, self.rect)
         return surface
 
-    # handles any events that would affect the UI object
+    # handles any events that would affect the UI object. When an event changes the state of the UI element,
+    # it calls onUpdate(getState()).
     # event: pygame.event
     def handleEvent(self, event):
         pass
