@@ -15,6 +15,7 @@ class UIObject:
         self.rect = rect
         self.color = color
         self.onUpdate = onUpdate
+        all_objects.addObject(self)
         
     
     # draws the object onto the given surface and returns that surface
@@ -97,7 +98,7 @@ class Button(UIObject):
 #############
 ## Globals ##
 #############
-
+all_objects = UIObjectGroup()
 
 ###############
 ## Functions ##
