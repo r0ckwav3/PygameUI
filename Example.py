@@ -14,6 +14,9 @@ PygameUI.UIObject((20,20,100,100), (143,23,77))
 movingrect = PygameUI.UIObject((20,120,100,100), (94,209,3))
 movespeed = 100
 
+PygameUI.Textbox((50,50,0,0), (0,0,0), "Text1", fontsize = 24, bgcolor = (255, 255, 255))
+PygameUI.Textbox((50,100,0,0), (0,0,0), "Text2", fontsize = 24)
+
 flag = True
 while flag:
     clock.tick(40)
