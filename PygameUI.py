@@ -15,6 +15,7 @@ class UIObject:
         self.rect = rect
         self.color = color
         self.onUpdate = onUpdate
+        
     
     # draws the object onto the given surface and returns that surface
     # surface: pygame.Surface
@@ -55,6 +56,22 @@ class UIObjectGroup:
             self.objects = []
         else:
             self.objects = objects
+    
+    # adds an object to the group
+    # object: UIObject
+    def addObject(self, object):
+        self.objects.append(object)
+    
+    # removes an object from the group
+    # object: UIObject
+    def removeObject(self, object):
+        self.objects.remove(object)
+    
+    # returns a list of the objects in this group.
+    # This list is mutable, but it is advised to use addObject and removeObject instead.
+    # -> UIObject[]
+    def getObjects(self):
+        return self.objects
     
     def draw(self, surface):
         for o in self.objects:
