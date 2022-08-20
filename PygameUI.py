@@ -1,4 +1,3 @@
-from tkinter import font
 import pygame
 
 #########################
@@ -43,8 +42,10 @@ def drawRoundedRect(surface, color, rect, rad=None):
                      (rect[0]+rect[2]-(rad+1), rect[1]+rect[3]-(rad+1))]
 
     for cc in circlecenters:
-        pygame.gfxdraw.aacircle(surface, cc[0], cc[1], rad, color)
-        pygame.gfxdraw.filled_circle(surface, cc[0], cc[1], rad, color)
+        pygame.draw.circle(surface, color, (cc[0], cc[1]), rad)
+
+def inRect(pos, rect):
+    return (0 <= pos[0]-rect[0] <= rect[2]) and (0 <= pos[1]-rect[1] <= rect[3])
 
 #############
 ## Classes ##
@@ -59,7 +60,7 @@ class UIObject:
     # onUpdate: function
     def __init__(self, rect, color, onUpdate = None):
         self.rect = rect
-        self.color = color
+        self.color = pygame.Color(color)
         self.onUpdate = onUpdate
         all_objects.addObject(self)
         
@@ -142,10 +143,13 @@ class UIObjectGroup:
 # a box containing text. Due to the way that pygame's fonts work, this currently does not support newlines.
 # also note that the width and height of the rect will be ignored
 class Textbox(UIObject):
-    def __init__(self, rect, color, text = "", fontname = None, fontsize = None, bgcolor = None, onUpdate = None):
+    def __init__(self, rect, color, bgcolor = None, text = "", fontname = None, fontsize = None, onUpdate = None):
         super().__init__(rect,color,onUpdate)
         self.text = text
-        self.bgcolor = bgcolor
+        if bgcolor is None:
+            self.bgcolor = None
+        else:
+            self.bgcolor = pygame.Color(bgcolor)
 
         if fontname is None:
             fontname = "sfns"
@@ -157,8 +161,64 @@ class Textbox(UIObject):
         textsurface = self.font.render(self.text, True, self.color, self.bgcolor)
         surface.blit(textsurface, self.rect)
 
+# similar to a textbox, but will change color when hovered over and activates the onUpdate() function when clicked.
+# notably, unlike the other UIObjects, it does not pass anything to onUpdate
 class Button(UIObject):
-    ...
+    def __init__(self, rect, textcolor, bgcolor1, bgcolor2=None, bgcolor3=None, text = "", fontname = None, fontsize = None, onUpdate = None):
+        super().__init__(rect,textcolor,onUpdate)
+        self.text = text
+        # self.bgcolor is the active one
+        # bgcolor1 is when not hovered over
+        # bgcolor2 is when hovered over
+        # bgcolor3 is when clicked
+        self.bgcolor = pygame.Color(bgcolor1)
+        self.bgcolor1 = pygame.Color(bgcolor1)
+
+        if bgcolor2 is None:
+            self.bgcolor2 = pygame.Color(bgcolor1)
+            oldhsva = self.bgcolor2.hsva
+            self.bgcolor2.hsva = (oldhsva[0],oldhsva[1],oldhsva[2]*0.9,oldhsva[3])
+        else:
+            self.bgcolor2 = bgcolor2
+
+        if bgcolor3 is None:
+            self.bgcolor3 = pygame.Color(bgcolor1)
+            oldhsva = self.bgcolor3.hsva
+            self.bgcolor3.hsva = (oldhsva[0],oldhsva[1],oldhsva[2]*0.8,oldhsva[3])
+        else:
+            self.bgcolor3 = bgcolor3
+
+        if fontname is None:
+            fontname = "sfns"
+        if fontsize is None:
+            fontsize = 12
+        self.font = getFont(fontname, fontsize)
+
+    def draw(self, surface):
+        drawRoundedRect(surface, self.bgcolor, self.rect)
+        textsurface = self.font.render(self.text, True, self.color)
+        textsurface = self.font.render(self.text, True, self.color, self.bgcolor)
+        blitrect = [
+           self.rect[0] + ((self.rect[2]-textsurface.get_width())//2),
+           self.rect[1] + ((self.rect[3]-textsurface.get_height())//2),
+           0,
+           0]
+        surface.blit(textsurface, blitrect)
+
+    def handleEvent(self, event):
+        # handle colors
+        if event.type in [pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP]:
+            if not inRect(event.pos, self.rect):
+                self.bgcolor = self.bgcolor1
+            elif pygame.mouse.get_pressed()[0]:
+                self.bgcolor = self.bgcolor3
+            else:
+                self.bgcolor = self.bgcolor2
+        
+        # handle clicks
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.onUpdate is not None:
+                self.onUpdate()
 
 class Slider(UIObject):
     ...

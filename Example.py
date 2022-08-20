@@ -14,8 +14,15 @@ PygameUI.UIObject((20,20,100,100), (143,23,77))
 movingrect = PygameUI.UIObject((20,120,100,100), (94,209,3))
 movespeed = 100
 
-PygameUI.Textbox((50,50,0,0), (0,0,0), "Text1", fontsize = 24, bgcolor = (255, 255, 255))
-PygameUI.Textbox((50,100,0,0), (0,0,0), "Text2", fontsize = 24)
+PygameUI.Button(
+    (50,50,50,30),
+    (0,0,0),
+    bgcolor1 = (192, 192, 192),
+    text = "Button",
+    onUpdate = lambda : print("clicked!")
+)
+
+PygameUI.Textbox((50,100,0,0), (0,0,0), text = "Text", fontsize = 24)
 
 flag = True
 while flag:
