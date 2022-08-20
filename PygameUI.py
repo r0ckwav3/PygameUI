@@ -139,10 +139,13 @@ class UIObjectGroup:
         for o in self.objects:
             o.reset()
 
+# a box containing text. Due to the way that pygame's fonts work, this currently does not support newlines.
+# also note that the width and height of the rect will be ignored
 class Textbox(UIObject):
-    def __init__(self, rect, color, text = "", fontname = None, fontsize = None, onUpdate = None):
+    def __init__(self, rect, color, text = "", fontname = None, fontsize = None, bgcolor = None, onUpdate = None):
         super().__init__(rect,color,onUpdate)
         self.text = text
+        self.bgcolor = bgcolor
 
         if fontname is None:
             fontname = "sfns"
@@ -150,9 +153,13 @@ class Textbox(UIObject):
             fontsize = 12
         self.font = getFont(fontname, fontsize)
 
+    def draw(self, surface):
+        textsurface = self.font.render(self.text, True, self.color, self.bgcolor)
+        surface.blit(textsurface, self.rect)
+
 class Button(UIObject):
     ...
-    
+
 class Slider(UIObject):
     ...
 
