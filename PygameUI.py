@@ -36,10 +36,12 @@ class UIObject:
     def move(self, dpos):
         self.rect = [self.rect[0]+dpos[0],self.rect[1]+dpos[1],self.rect[2],self.rect[3]]
 
-    # moves the uiobject to a new location
+    # moves the uiobject to a new location. put None in the list to keep something the same
     # newrect: int[4]
     def setRect(self, newrect):
-        self.rect = newrect
+        for i in range(4):
+            if newrect[i] is not None:
+                self.rect[i] = newrect[i]
 
     # gets the current rectangle
     # -> int[4]
