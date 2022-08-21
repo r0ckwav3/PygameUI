@@ -141,26 +141,15 @@ class UIObjectGroup:
             o.reset()
 
 # a box containing text. Due to the way that pygame's fonts work, this currently does not support newlines.
-# also note that the width and height of the rect will be ignored
+# also note that the width and height of the rect will be ignored, instead only using the corner to place text.
 class Textbox(UIObject):
-    def __init__(self, rect, textcolor = None, bgcolor = None, text = "", fontname = None, fontsize = None, onUpdate = None):
+    def __init__(self, rect, textcolor = (0,0,0), bgcolor = None, text = "", fontname = "sfns", fontsize = 12, onUpdate = None):
         super().__init__(rect,onUpdate)
         self.text = text
 
-        if textcolor is None:
-            self.textcolor = (0,0,0)
-        else:
-            self.textcolor = textcolor
+        self.textcolor = pygame.Color(textcolor)
+        self.bgcolor = None if bgcolor is None else pygame.Color(bgcolor)
 
-        if bgcolor is None:
-            self.bgcolor = None
-        else:
-            self.bgcolor = pygame.Color(bgcolor)
-
-        if fontname is None:
-            fontname = "sfns"
-        if fontsize is None:
-            fontsize = 12
         self.font = getFont(fontname, fontsize)
 
     def draw(self, surface):
@@ -170,23 +159,16 @@ class Textbox(UIObject):
 # similar to a textbox, but will change color when hovered over and activates the onUpdate() function when clicked.
 # notably, unlike the other UIObjects, it does not pass anything to onUpdate
 class Button(UIObject):
-    def __init__(self, rect, textcolor=None, bgcolor=None, bgcolor2=None, bgcolor3=None, text = "", fontname = None, fontsize = None, onUpdate = None):
+    def __init__(self, rect, textcolor=(0,0,0), bgcolor=(192,192,192), bgcolor2=None, bgcolor3=None, text = "", fontname = None, fontsize = None, onUpdate = None):
         super().__init__(rect,onUpdate)
         self.text = text
-
-        if textcolor is None:
-            self.textcolor = pygame.Color(0,0,0)
-        else:
-            self.textcolor = pygame.Color(textcolor)
+        self.textcolor = pygame.Color(textcolor)
 
         # self.bgcolor is the active one
         # self.bgcolor1 is when not hovered over
         # self.bgcolor2 is when hovered over
         # self.bgcolor3 is when clicked
-        if bgcolor is None:
-            self.bgcolor1 = pygame.Color(192,192,192)
-        else:
-            self.bgcolor1 = pygame.Color(bgcolor)
+        self.bgcolor1 = pygame.Color(bgcolor)
 
         if bgcolor2 is None:
             self.bgcolor2 = copy.deepcopy(self.bgcolor1)
