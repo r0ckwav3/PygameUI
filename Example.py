@@ -15,12 +15,18 @@ movingrect = PygameUI.UIObject((20,120,100,100))
 movespeed = 100 # pixels per second
 
 PygameUI.Button(
-    (50,50,50,30),
+    (40,40,50,30),
     text = "Button",
     onUpdate = lambda : print("clicked!")
 )
 
-PygameUI.Textbox((50,100,0,0), (0,0,0), text = "Text", fontsize = 24)
+PygameUI.Toggle(
+    (30,80,70,30),
+    text = "Toggle",
+    onUpdate = lambda x: print("toggled: " + ("on" if x else "off") + ".")
+)
+
+PygameUI.Textbox((50,120,0,0), (0,0,0), text = "Text", fontsize = 24)
 
 PygameUI.Slider((140,20,100,20), 0, 5, sliderdefault=4, discrete=True, onUpdate=lambda x : print("slider: ",x))
 PygameUI.Slider((140,60,100,20), 0, 5, sliderdefault=4, discrete=False, onUpdate=lambda x : print("slider: ",x))

@@ -143,7 +143,7 @@ class Textbox(UIObject):
 # similar to a textbox, but will change color when hovered over and activates the onUpdate() function when clicked.
 # notably, unlike the other UIObjects, it does not pass anything to onUpdate
 class Button(UIObject):
-    def __init__(self, rect, textcolor=(0,0,0), bgcolor=(192,192,192), bgcolor2=None, bgcolor3=None, text = "", fontname = None, fontsize = None, onUpdate = None):
+    def __init__(self, rect, textcolor=(0,0,0), bgcolor=(192,192,192), bgcolor2=None, bgcolor3=None, text = "", fontname = "sfns", fontsize = 12, onUpdate = None):
         super().__init__(rect,onUpdate)
         self.text = text
         self.textcolor = pygame.Color(textcolor)
@@ -204,7 +204,7 @@ class Button(UIObject):
         
         # handle clicks
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if inRect(event.pos, self.rect):
+            if inRect(event.pos, self.rect) and event.button == 1:
                 if self.onUpdate is not None:
                     self.onUpdate()
 
@@ -288,8 +288,89 @@ class Slider(UIObject):
         self.slidervalue = self.sliderdefault
         self.onUpdate(self.getState())
 
+# very similar to a button, but is toggled by clicking
 class Toggle(UIObject):
-    ...
+    def __init__(self, rect, textcolor=(0,0,0), bgcolor=(192,192,192), bgcolor2=None, bgcolor3=None, bgcolor4=None, text = "", fontname = "sfns", fontsize = 12, onUpdate = None):
+        super().__init__(rect,onUpdate)
+        self.text = text
+        self.textcolor = pygame.Color(textcolor)
+
+        self.state = False
+
+        # self.bgcolor is the active one
+        # self.bgcolor1 is when off 
+        # self.bgcolor2 is when off, hovered over
+        # self.bgcolor3 is when on
+        # self.bgcolor4 is when on, hovered over
+        self.bgcolor1 = pygame.Color(bgcolor)
+
+        if bgcolor2 is None:
+            self.bgcolor2 = copy.deepcopy(self.bgcolor1)
+            oldhsva = self.bgcolor2.hsva
+            self.bgcolor2.hsva = (oldhsva[0],oldhsva[1],oldhsva[2]*0.9,oldhsva[3])
+        else:
+            self.bgcolor2 = bgcolor2
+
+        if bgcolor3 is None:
+            self.bgcolor3 = copy.deepcopy(self.bgcolor1)
+            oldhsva = self.bgcolor3.hsva
+            self.bgcolor3.hsva = (oldhsva[0],oldhsva[1],oldhsva[2]*0.8,oldhsva[3])
+        else:
+            self.bgcolor3 = bgcolor3
+        
+        if bgcolor4 is None:
+            self.bgcolor4 = copy.deepcopy(self.bgcolor1)
+            oldhsva = self.bgcolor4.hsva
+            self.bgcolor4.hsva = (oldhsva[0],oldhsva[1],oldhsva[2]*0.7,oldhsva[3])
+        else:
+            self.bgcolor4 = bgcolor4
+
+        self.bgcolor = self.bgcolor1
+
+        self.font = getFont(fontname, fontsize)
+
+    def draw(self, surface):
+        pygame.draw.rect(
+            surface,
+            self.bgcolor,
+            self.rect,
+            border_radius=min(self.rect[2],self.rect[3])//3
+        )
+        textsurface = self.font.render(self.text, True, self.textcolor)
+        textsurface = self.font.render(self.text, True, self.textcolor, self.bgcolor)
+        blitrect = [
+           self.rect[0] + ((self.rect[2]-textsurface.get_width())//2),
+           self.rect[1] + ((self.rect[3]-textsurface.get_height())//2),
+           0,
+           0]
+        surface.blit(textsurface, blitrect)
+
+    def handleEvent(self, event):
+        # handle clicks
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if inRect(event.pos, self.rect) and event.button == 1:
+                self.state = not self.state
+                if self.onUpdate is not None:
+                    self.onUpdate(self.getState())
+
+        # handle colors
+        if event.type in [pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN]:
+            if inRect(event.pos, self.rect):
+                if self.state:
+                    self.bgcolor = self.bgcolor4
+                else:
+                    self.bgcolor = self.bgcolor2
+            else:
+                if self.state:
+                    self.bgcolor = self.bgcolor3
+                else:
+                    self.bgcolor = self.bgcolor1
+    
+    def getState(self):
+        return self.state
+    
+    def reset(self):
+        self.state = False
 
 #############
 ## Globals ##
