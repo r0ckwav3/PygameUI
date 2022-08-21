@@ -22,6 +22,8 @@ PygameUI.Button(
 
 PygameUI.Textbox((50,100,0,0), (0,0,0), text = "Text", fontsize = 24)
 
+PygameUI.Slider((140,20,100,20), 0, 10, sliderdefault=4)
+
 flag = True
 while flag:
     clock.tick(40)

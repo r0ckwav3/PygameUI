@@ -28,23 +28,6 @@ def getFont(fontname, fontsize):
 ## Helpers ##
 #############
 
-def drawRoundedRect(surface, color, rect, rad=None):
-    if rad is None:
-        rad = min(rect[2], rect[3])//3
-
-    pygame.draw.rect(surface, color,
-                     [rect[0]+rad, rect[1], rect[2]-(rad*2), rect[3]])
-    pygame.draw.rect(surface, color,
-                     [rect[0], rect[1]+rad, rect[2], rect[3]-(rad*2)])
-
-    circlecenters = [(rect[0]+rad, rect[1]+rad),
-                     (rect[0]+rect[2]-(rad+1), rect[1]+rad),
-                     (rect[0]+rad, rect[1]+rect[3]-(rad+1)),
-                     (rect[0]+rect[2]-(rad+1), rect[1]+rect[3]-(rad+1))]
-
-    for cc in circlecenters:
-        pygame.draw.circle(surface, color, (cc[0], cc[1]), rad)
-
 def inRect(pos, rect):
     return (0 <= pos[0]-rect[0] <= rect[2]) and (0 <= pos[1]-rect[1] <= rect[3])
 
@@ -193,7 +176,12 @@ class Button(UIObject):
         self.font = getFont(fontname, fontsize)
 
     def draw(self, surface):
-        drawRoundedRect(surface, self.bgcolor, self.rect)
+        pygame.draw.rect(
+            surface,
+            self.bgcolor,
+            self.rect,
+            border_radius=min(self.rect[2],self.rect[3])//3
+        )
         textsurface = self.font.render(self.text, True, self.textcolor)
         textsurface = self.font.render(self.text, True, self.textcolor, self.bgcolor)
         blitrect = [
@@ -218,8 +206,11 @@ class Button(UIObject):
             if self.onUpdate is not None:
                 self.onUpdate()
 
+# a line with a handle that slides between a given max and min
+# if discrete is true, the slider will snap to the nearest integer.
+# if false, it snaps to the nearest pixel.
 class Slider(UIObject):
-    def __init__(self, rect, slidermin, slidermax, discrete=True, linecolor=(128,128,128), handlecolor=(192,192,192), linesize=None, onUpdate=None):
+    def __init__(self, rect, slidermin, slidermax, discrete=True, sliderdefault=None, linecolor=(128,128,128), handlecolor=(192,192,192), linesize=None, onUpdate=None):
         super().__init__(rect, onUpdate)
         self.slidermin = slidermin
         self.slidermax = slidermax
@@ -229,6 +220,44 @@ class Slider(UIObject):
         self.handlecolor = pygame.Color(handlecolor)
 
         self.linesize = rect[3]//3 if linesize is None else linesize
+        self.sliderdefault = slidermin if sliderdefault is None else sliderdefault
+
+        self.slidervalue = self.sliderdefault
+        
+    def draw(self, surface):
+        pygame.draw.rect(
+            surface,
+            self.linecolor,
+            [
+                self.rect[0],
+                self.rect[1]+(self.rect[3]-self.linesize)//2,
+                self.rect[2],
+                self.linesize
+            ],
+            border_radius = self.linesize//2
+        )
+
+        sliderfrac = (self.slidervalue-self.slidermin)/(self.slidermax-self.slidermin)
+        pygame.draw.circle(
+            surface,
+            self.handlecolor,
+            (
+                self.rect[0] + int(sliderfrac*self.rect[2]),
+                self.rect[1] + self.rect[3]//2
+            ),
+            self.rect[3]//2
+        )
+        return surface
+
+    def handleEvent(self, event):
+        pass
+    
+    def getState(self):
+        return self.slidervalue
+
+    def reset(self):
+        self.slidervalue = self.sliderdefault
+        self.onUpdate(self.getState())
 
 class Toggle(UIObject):
     ...
