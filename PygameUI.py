@@ -203,8 +203,9 @@ class Button(UIObject):
         
         # handle clicks
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.onUpdate is not None:
-                self.onUpdate()
+            if inRect(event.pos, self.rect):
+                if self.onUpdate is not None:
+                    self.onUpdate()
 
 # a line with a handle that slides between a given max and min
 # if discrete is true, the slider will snap to the nearest integer.
