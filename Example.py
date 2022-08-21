@@ -22,7 +22,8 @@ PygameUI.Button(
 
 PygameUI.Textbox((50,100,0,0), (0,0,0), text = "Text", fontsize = 24)
 
-PygameUI.Slider((140,20,100,20), 0, 10, sliderdefault=4)
+PygameUI.Slider((140,20,100,20), 0, 5, sliderdefault=4, discrete=True, onUpdate=lambda x : print("slider: ",x))
+PygameUI.Slider((140,60,100,20), 0, 5, sliderdefault=4, discrete=False, onUpdate=lambda x : print("slider: ",x))
 
 flag = True
 while flag:

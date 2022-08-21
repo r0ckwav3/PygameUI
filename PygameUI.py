@@ -1,5 +1,6 @@
 import pygame
 import copy
+import math
 
 #########################
 ## Font Initialization ##
@@ -224,6 +225,7 @@ class Slider(UIObject):
         self.sliderdefault = slidermin if sliderdefault is None else sliderdefault
 
         self.slidervalue = self.sliderdefault
+        self.clickedon = False
         
     def draw(self, surface):
         pygame.draw.rect(
@@ -251,7 +253,33 @@ class Slider(UIObject):
         return surface
 
     def handleEvent(self, event):
-        pass
+        # handle self.clickedon
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if inRect(event.pos, self.rect) and event.button == 1:
+                self.clickedon = True
+        
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.clickedon = False
+        
+        # update slider position
+        if event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONDOWN:
+            if self.clickedon:
+                sliderfrac = (event.pos[0] - self.rect[0])/self.rect[2]
+                
+                # enforce bounds
+                if sliderfrac < 0: 
+                    sliderfrac = 0
+                if sliderfrac > 1:
+                    sliderfrac = 1
+                
+                # calculate value and round if necessary
+                self.slidervalue = (sliderfrac * (self.slidermax - self.slidermin)) + self.slidermin
+                if self.discrete:
+                    self.slidervalue = int(round(self.slidervalue))
+
+                # call onupdate
+                if self.onUpdate is not None:
+                    self.onUpdate(self.getState())
     
     def getState(self):
         return self.slidervalue
