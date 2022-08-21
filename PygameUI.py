@@ -1,4 +1,5 @@
 import pygame
+import copy
 
 #########################
 ## Font Initialization ##
@@ -52,15 +53,14 @@ def inRect(pos, rect):
 #############
 
 # base ui object
-# if used, draws a solid rectangle
+# if used, draws a solid magenta rectangle
 class UIObject:
     # initialization see handleEvent for use of onUpdate
     # rect: int[4]
     # color: int[3] or pygame.color
     # onUpdate: function
-    def __init__(self, rect, color, onUpdate = None):
+    def __init__(self, rect, onUpdate = None):
         self.rect = rect
-        self.color = pygame.Color(color)
         self.onUpdate = onUpdate
         all_objects.addObject(self)
         
@@ -69,7 +69,7 @@ class UIObject:
     # surface: pygame.Surface
     # -> pygame.Surface
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, self.rect)
+        pygame.draw.rect(surface, (255,0,255), self.rect)
         return surface
 
     # handles any events that would affect the UI object. When an event changes the state of the UI element,
@@ -143,9 +143,15 @@ class UIObjectGroup:
 # a box containing text. Due to the way that pygame's fonts work, this currently does not support newlines.
 # also note that the width and height of the rect will be ignored
 class Textbox(UIObject):
-    def __init__(self, rect, color, bgcolor = None, text = "", fontname = None, fontsize = None, onUpdate = None):
-        super().__init__(rect,color,onUpdate)
+    def __init__(self, rect, textcolor = None, bgcolor = None, text = "", fontname = None, fontsize = None, onUpdate = None):
+        super().__init__(rect,onUpdate)
         self.text = text
+
+        if textcolor is None:
+            self.textcolor = (0,0,0)
+        else:
+            self.textcolor = textcolor
+
         if bgcolor is None:
             self.bgcolor = None
         else:
@@ -158,35 +164,45 @@ class Textbox(UIObject):
         self.font = getFont(fontname, fontsize)
 
     def draw(self, surface):
-        textsurface = self.font.render(self.text, True, self.color, self.bgcolor)
+        textsurface = self.font.render(self.text, True, self.textcolor, self.bgcolor)
         surface.blit(textsurface, self.rect)
 
 # similar to a textbox, but will change color when hovered over and activates the onUpdate() function when clicked.
 # notably, unlike the other UIObjects, it does not pass anything to onUpdate
 class Button(UIObject):
-    def __init__(self, rect, textcolor, bgcolor1, bgcolor2=None, bgcolor3=None, text = "", fontname = None, fontsize = None, onUpdate = None):
-        super().__init__(rect,textcolor,onUpdate)
+    def __init__(self, rect, textcolor=None, bgcolor=None, bgcolor2=None, bgcolor3=None, text = "", fontname = None, fontsize = None, onUpdate = None):
+        super().__init__(rect,onUpdate)
         self.text = text
+
+        if textcolor is None:
+            self.textcolor = pygame.Color(0,0,0)
+        else:
+            self.textcolor = pygame.Color(textcolor)
+
         # self.bgcolor is the active one
-        # bgcolor1 is when not hovered over
-        # bgcolor2 is when hovered over
-        # bgcolor3 is when clicked
-        self.bgcolor = pygame.Color(bgcolor1)
-        self.bgcolor1 = pygame.Color(bgcolor1)
+        # self.bgcolor1 is when not hovered over
+        # self.bgcolor2 is when hovered over
+        # self.bgcolor3 is when clicked
+        if bgcolor is None:
+            self.bgcolor1 = pygame.Color(192,192,192)
+        else:
+            self.bgcolor1 = pygame.Color(bgcolor)
 
         if bgcolor2 is None:
-            self.bgcolor2 = pygame.Color(bgcolor1)
+            self.bgcolor2 = copy.deepcopy(self.bgcolor1)
             oldhsva = self.bgcolor2.hsva
             self.bgcolor2.hsva = (oldhsva[0],oldhsva[1],oldhsva[2]*0.9,oldhsva[3])
         else:
             self.bgcolor2 = bgcolor2
 
         if bgcolor3 is None:
-            self.bgcolor3 = pygame.Color(bgcolor1)
+            self.bgcolor3 = copy.deepcopy(self.bgcolor1)
             oldhsva = self.bgcolor3.hsva
             self.bgcolor3.hsva = (oldhsva[0],oldhsva[1],oldhsva[2]*0.8,oldhsva[3])
         else:
             self.bgcolor3 = bgcolor3
+
+        self.bgcolor = self.bgcolor1
 
         if fontname is None:
             fontname = "sfns"
@@ -196,8 +212,8 @@ class Button(UIObject):
 
     def draw(self, surface):
         drawRoundedRect(surface, self.bgcolor, self.rect)
-        textsurface = self.font.render(self.text, True, self.color)
-        textsurface = self.font.render(self.text, True, self.color, self.bgcolor)
+        textsurface = self.font.render(self.text, True, self.textcolor)
+        textsurface = self.font.render(self.text, True, self.textcolor, self.bgcolor)
         blitrect = [
            self.rect[0] + ((self.rect[2]-textsurface.get_width())//2),
            self.rect[1] + ((self.rect[3]-textsurface.get_height())//2),

@@ -10,14 +10,12 @@ screen = pygame.display.set_mode(SCREENSIZE)
 clock = pygame.time.Clock()
 
 # ui elements
-PygameUI.UIObject((20,20,100,100), (143,23,77))
-movingrect = PygameUI.UIObject((20,120,100,100), (94,209,3))
-movespeed = 100
+PygameUI.UIObject((20,20,100,100))
+movingrect = PygameUI.UIObject((20,120,100,100))
+movespeed = 100 # pixels per second
 
 PygameUI.Button(
     (50,50,50,30),
-    (0,0,0),
-    bgcolor1 = (192, 192, 192),
     text = "Button",
     onUpdate = lambda : print("clicked!")
 )
