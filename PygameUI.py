@@ -237,7 +237,16 @@ class Button(UIObject):
                 self.onUpdate()
 
 class Slider(UIObject):
-    ...
+    def __init__(self, rect, slidermin, slidermax, discrete=True, linecolor=(128,128,128), handlecolor=(192,192,192), linesize=None, onUpdate=None):
+        super().__init__(rect, onUpdate)
+        self.slidermin = slidermin
+        self.slidermax = slidermax
+        self.discrete = discrete
+        
+        self.linecolor = pygame.Color(linecolor)
+        self.handlecolor = pygame.Color(handlecolor)
+
+        self.linesize = rect[3]//3 if linesize is None else linesize
 
 class Toggle(UIObject):
     ...
