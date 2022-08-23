@@ -512,12 +512,13 @@ class Textfield(UIObject):
                     self.cursor += len(event.unicode)
                     self.rcp = self.getrelativecursorpos()
                 
-                # TODO: update self.textoffset
                 # horizontal textoffset
                 if self.textoffset[0] + self.rcp[0] < 0:
                     self.textoffset[0] = -self.rcp[0]
                 elif self.textoffset[0] + self.rcp[0] >= self.rect[2]-self.padding:
                     self.textoffset[0] = self.rect[2]-self.padding-self.rcp[0]-1
+                
+                # TODO: vertical textoffset
                     
     
     def getState(self):
