@@ -3,6 +3,7 @@ A pseudopackage that adds UI elements to pygame
 
 ## todo
 * Text input fields
+* maybe any documentation
 
 ## stretch goal features
 * dropdown menus or tabs
@@ -12,4 +13,5 @@ A pseudopackage that adds UI elements to pygame
 
 ## inspiration
 [USWDS Components](https://designsystem.digital.gov/components/overview/)
+
 [tkinter](https://docs.python.org/3/library/tkinter.html)
