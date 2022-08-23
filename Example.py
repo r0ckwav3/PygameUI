@@ -51,4 +51,4 @@ while flag:
     PygameUI.all_objects.draw(screen)
     pygame.display.flip()
 
-        
+pygame.quit()
