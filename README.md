@@ -10,6 +10,7 @@ A pseudopackage that adds UI elements to pygame
 * hover-over tooltips
 * pop-up box
 * prerender text for buttons and textboxes
+* textfeilds support up and down arrow keys
 
 ## inspiration
 [USWDS Components](https://designsystem.digital.gov/components/overview/)
