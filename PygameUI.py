@@ -411,13 +411,15 @@ class Textfield(UIObject):
         self.bordercolor = bordercolor
         self.allownewlines = allownewlines
         self.infocus = False
-        self.cursor = 0
         self.font = getFont(fontname, fontsize)
         self.padding = padding
 
         self.defaulttext = defaulttext
         self.text = defaulttext
-        self.textoffset = (0,0)
+        self.textoffset = [0,0]
+
+        self.cursor = 0
+        self.rcp = self.getrelativecursorpos()
     
     def draw(self, surface):
         # bg color and box
@@ -439,8 +441,7 @@ class Textfield(UIObject):
         constrainedtextsurface.blit(textsurface, self.textoffset)
 
         if self.infocus:
-            rcp = self.getrelativecursorpos()
-            cursorcoords = [self.textoffset[0] + rcp[0], self.textoffset[1] + rcp[1]]
+            cursorcoords = [self.textoffset[0] + self.rcp[0], self.textoffset[1] + self.rcp[1]]
             pygame.draw.rect(
                 constrainedtextsurface,
                 self.textcolor,
@@ -448,7 +449,7 @@ class Textfield(UIObject):
                     cursorcoords[0],
                     cursorcoords[1],
                     1,                  # I might make cursor width a parameter
-                    rcp[2]
+                    self.rcp[2]
                 ]
             )
 
@@ -456,7 +457,6 @@ class Textfield(UIObject):
 
 
 
-    # I might preprocess this since its so slow and doesn't change too often
     # returns three values, xpos, ypos and height
     # getrelativecursorpos + textoffset should always be in the box
     def getrelativecursorpos(self, cursor=None):
@@ -483,8 +483,8 @@ class Textfield(UIObject):
             else:
                 self.infocus = False
         elif event.type == pygame.KEYDOWN:
-            # TODO: add command and option to backspace and arrow keys
             if self.infocus:
+                # TODO: add command and option to backspace and arrow keys
                 # print(event)
                 if event.key == pygame.K_ESCAPE:
                     self.infocus = False
@@ -492,22 +492,33 @@ class Textfield(UIObject):
                     if self.cursor != 0:
                         self.text = self.text[:self.cursor-1] + self.text[self.cursor:]
                         self.cursor -= 1
+                        self.rcp = self.getrelativecursorpos()
                 elif event.key == pygame.K_RIGHT:
                     if self.cursor < len(self.text):
                         self.cursor += 1
+                        self.rcp = self.getrelativecursorpos()
                 elif event.key == pygame.K_LEFT:
                     if self.cursor >= 0:
                         self.cursor -= 1
+                        self.rcp = self.getrelativecursorpos()
                 elif event.key == pygame.K_RETURN:
                     self.text = self.text[:self.cursor] + "\n" + self.text[self.cursor:]
                     self.cursor += 1
+                    self.rcp = self.getrelativecursorpos()
                 elif event.key in [pygame.K_UP, pygame.K_DOWN]:
                     pass
                 else:
                     self.text = self.text[:self.cursor] + event.unicode + self.text[self.cursor:]
                     self.cursor += len(event.unicode)
+                    self.rcp = self.getrelativecursorpos()
                 
                 # TODO: update self.textoffset
+                # horizontal textoffset
+                if self.textoffset[0] + self.rcp[0] < 0:
+                    self.textoffset[0] = -self.rcp[0]
+                elif self.textoffset[0] + self.rcp[0] >= self.rect[2]-self.padding:
+                    self.textoffset[0] = self.rect[2]-self.padding-self.rcp[0]-1
+                    
     
     def getState(self):
         return self.text
