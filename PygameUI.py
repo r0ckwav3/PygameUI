@@ -1,3 +1,4 @@
+from unittest import TextTestRunner
 import pygame
 import copy
 import math
@@ -31,6 +32,33 @@ def getFont(fontname, fontsize):
 
 def inRect(pos, rect):
     return (0 <= pos[0]-rect[0] <= rect[2]) and (0 <= pos[1]-rect[1] <= rect[3])
+
+# renders text to a surface (very similar to font.render) but supports newlines
+# spacing does not count the text's height, so single spaced is spacing=1
+def multilineFontRender(font, text, antialiased, textcolor, bgcolor, spacing=1.15):
+    splittext = text.split("\n")
+    neededwidth = 0
+    neededheight = 0
+    for line in splittext:
+        rendersize = font.size(line)
+        neededwidth = max(neededwidth, rendersize[0])
+        neededheight += rendersize[1] * spacing
+        # this gets us slightly more space than we need on the last line, but that shouldn't affect anything
+
+    textsurface = pygame.surface.Surface((neededwidth, neededheight), pygame.SRCALPHA)
+    textsurface.fill((0,0,0,0))
+    accumheight = 0
+
+    for line in splittext:
+        textsurface.blit(
+            font.render(line, antialiased, textcolor, bgcolor),
+            [0,accumheight,0,0]
+        )
+        rendersize = font.size(line)
+        accumheight += rendersize[1] * spacing
+    
+    return textsurface
+
 
 #############
 ## Classes ##
@@ -126,10 +154,12 @@ class UIObjectGroup:
 
 # a box containing text. Due to the way that pygame's fonts work, this currently does not support newlines.
 # also note that the width and height of the rect will be ignored, instead only using the corner to place text.
+# onUpdate is ignored
 class Textbox(UIObject):
-    def __init__(self, rect, textcolor = (0,0,0), bgcolor = None, text = "", fontname = "sfns", fontsize = 12, onUpdate = None):
+    def __init__(self, rect, textcolor = (0,0,0), bgcolor = None, text = "", fontname = "sfns", fontsize = 12, spacing = 1.15, onUpdate = None):
         super().__init__(rect,onUpdate)
         self.text = text
+        self.spacing = spacing
 
         self.textcolor = pygame.Color(textcolor)
         self.bgcolor = None if bgcolor is None else pygame.Color(bgcolor)
@@ -137,7 +167,8 @@ class Textbox(UIObject):
         self.font = getFont(fontname, fontsize)
 
     def draw(self, surface):
-        textsurface = self.font.render(self.text, True, self.textcolor, self.bgcolor)
+        # textsurface = self.font.render(self.text, True, self.textcolor, self.bgcolor)
+        textsurface = multilineFontRender(self.font, self.text, True, self.textcolor, self.bgcolor, self.spacing)
         surface.blit(textsurface, self.rect)
 
 # similar to a textbox, but will change color when hovered over and activates the onUpdate() function when clicked.

@@ -26,7 +26,7 @@ PygameUI.Toggle(
     onUpdate = lambda x: print("toggled: " + ("on" if x else "off"))
 )
 
-PygameUI.Textbox((50,120,0,0), (0,0,0), text = "Text", fontsize = 24)
+PygameUI.Textbox((50,120,0,0), (0,0,0), text = "Text\n... and more!", fontsize = 24)
 
 PygameUI.Slider((140,20,100,20), 0, 5, sliderdefault=4, discrete=True, onUpdate=lambda x : print("slider1: ",x))
 PygameUI.Slider((140,60,100,20), 0, 5, sliderdefault=4, discrete=False, onUpdate=lambda x : print("slider2: ",x))
