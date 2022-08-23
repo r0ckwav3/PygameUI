@@ -404,7 +404,7 @@ class Toggle(UIObject):
 
 
 class Textfield(UIObject):
-    def __init__(self, rect, textcolor=(0,0,0), bgcolor=(192,192,192), bordercolor=(0,0,0), defaulttext = "", allownewlines=False, fontname = "sfns", fontsize = 12, padding=5, onUpdate=None):
+    def __init__(self, rect, textcolor=(0,0,0), bgcolor=(192,192,192), bordercolor=(0,0,0), defaulttext = "", allownewlines=False, fontname = "sfns", fontsize = 12, spacing=1.15, padding=5, onUpdate=None):
         super().__init__(rect, onUpdate)
         self.textcolor = textcolor
         self.bgcolor = bgcolor
@@ -413,6 +413,7 @@ class Textfield(UIObject):
         self.infocus = False
         self.font = getFont(fontname, fontsize)
         self.padding = padding
+        self.spacing = spacing
 
         self.defaulttext = defaulttext
         self.text = defaulttext
@@ -436,7 +437,7 @@ class Textfield(UIObject):
         )
 
         # text and cursor
-        textsurface = multilineFontRender(self.font, self.text, True, self.textcolor, None)
+        textsurface = multilineFontRender(self.font, self.text, True, self.textcolor, None, self.spacing)
         constrainedtextsurface = pygame.surface.Surface((self.rect[2]-self.padding, self.rect[3]-self.padding), pygame.SRCALPHA)
         constrainedtextsurface.blit(textsurface, self.textoffset)
 
@@ -467,7 +468,7 @@ class Textfield(UIObject):
         splittext = subtext.split("\n")
         yoffset = 0
         for line in splittext[:-1]:
-            yoffset += self.font.size(line)[1]
+            yoffset += self.font.size(line)[1]*self.spacing
 
         xoffset = self.font.size(splittext[-1])[0]
         height = self.font.size(splittext[-1])[1]
@@ -489,7 +490,7 @@ class Textfield(UIObject):
                 if event.key == pygame.K_ESCAPE:
                     self.infocus = False
                 elif event.key == pygame.K_BACKSPACE:
-                    if self.cursor != 0:
+                    if self.cursor > 0:
                         self.text = self.text[:self.cursor-1] + self.text[self.cursor:]
                         self.cursor -= 1
                         self.rcp = self.getrelativecursorpos()
@@ -498,7 +499,7 @@ class Textfield(UIObject):
                         self.cursor += 1
                         self.rcp = self.getrelativecursorpos()
                 elif event.key == pygame.K_LEFT:
-                    if self.cursor >= 0:
+                    if self.cursor > 0:
                         self.cursor -= 1
                         self.rcp = self.getrelativecursorpos()
                 elif event.key == pygame.K_RETURN:
@@ -517,8 +518,11 @@ class Textfield(UIObject):
                     self.textoffset[0] = -self.rcp[0]
                 elif self.textoffset[0] + self.rcp[0] >= self.rect[2]-self.padding:
                     self.textoffset[0] = self.rect[2]-self.padding-self.rcp[0]-1
-                
-                # TODO: vertical textoffset
+                # vertical offset
+                if self.textoffset[1] + self.rcp[1] < 0:
+                    self.textoffset[1] = -self.rcp[1]
+                elif self.textoffset[1] + self.rcp[1] + self.rcp[2] >= self.rect[3]-self.padding:
+                    self.textoffset[1] = self.rect[3]-self.padding-self.rcp[1]-self.rcp[2]
                     
     
     def getState(self):

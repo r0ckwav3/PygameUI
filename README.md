@@ -2,7 +2,7 @@
 A pseudopackage that adds UI elements to pygame
 
 ## bugs
-* hitting the left arrow at far left of a textbox makes the cursor jump to a weird place
+None! (that I know of)
 
 ## todo
 * Text input fields
