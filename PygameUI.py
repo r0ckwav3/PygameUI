@@ -485,20 +485,19 @@ class Textfield(UIObject):
         elif event.type == pygame.KEYDOWN:
             # TODO: add command and option to backspace and arrow keys
             if self.infocus:
-                print(event)
+                # print(event)
                 if event.key == pygame.K_ESCAPE:
                     self.infocus = False
                 elif event.key == pygame.K_BACKSPACE:
-                    # TODO: implement
-                    pass
-                elif event.key == pygame.K_RIGHT:
-                    self.cursor += 1
-                    if self.cursor > len(self.text):
+                    if self.cursor != 0:
+                        self.text = self.text[:self.cursor-1] + self.text[self.cursor:]
                         self.cursor -= 1
-                elif event.key == pygame.K_LEFT:
-                    self.cursor -= 1
-                    if self.cursor < 0:
+                elif event.key == pygame.K_RIGHT:
+                    if self.cursor < len(self.text):
                         self.cursor += 1
+                elif event.key == pygame.K_LEFT:
+                    if self.cursor >= 0:
+                        self.cursor -= 1
                 
                 # TODO: update self.textoffset
     
