@@ -9,6 +9,7 @@ A pseudopackage that adds UI elements to pygame
 * dropdown menus or tabs
 * hover-over tooltips
 * pop-up box
+* prerender text for buttons and textboxes
 
 ## inspiration
 [USWDS Components](https://designsystem.digital.gov/components/overview/)
