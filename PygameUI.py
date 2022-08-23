@@ -402,6 +402,112 @@ class Toggle(UIObject):
     def reset(self):
         self.state = False
 
+
+class Textfield(UIObject):
+    def __init__(self, rect, textcolor=(0,0,0), bgcolor=(192,192,192), bordercolor=(0,0,0), defaulttext = "", allownewlines=False, fontname = "sfns", fontsize = 12, padding=5, onUpdate=None):
+        super().__init__(rect, onUpdate)
+        self.textcolor = textcolor
+        self.bgcolor = bgcolor
+        self.bordercolor = bordercolor
+        self.allownewlines = allownewlines
+        self.infocus = False
+        self.cursor = 0
+        self.font = getFont(fontname, fontsize)
+        self.padding = padding
+
+        self.defaulttext = defaulttext
+        self.text = defaulttext
+        self.textoffset = (0,0)
+    
+    def draw(self, surface):
+        # bg color and box
+        pygame.draw.rect(
+            surface,
+            self.bgcolor,
+            self.rect
+        )
+        pygame.draw.rect(
+            surface,
+            self.bordercolor,
+            self.rect,
+            width=1
+        )
+
+        # text and cursor
+        textsurface = multilineFontRender(self.font, self.text, True, self.textcolor, None)
+        constrainedtextsurface = pygame.surface.Surface((self.rect[2]-self.padding, self.rect[3]-self.padding), pygame.SRCALPHA)
+        constrainedtextsurface.blit(textsurface, self.textoffset)
+
+        if self.infocus:
+            rcp = self.getrelativecursorpos()
+            cursorcoords = [self.textoffset[0] + rcp[0], self.textoffset[1] + rcp[1]]
+            pygame.draw.rect(
+                constrainedtextsurface,
+                self.textcolor,
+                [
+                    cursorcoords[0],
+                    cursorcoords[1],
+                    1,                  # I might make cursor width a parameter
+                    rcp[2]
+                ]
+            )
+
+        surface.blit(constrainedtextsurface, (self.rect[0]+self.padding//2, self.rect[1]+self.padding//2))
+
+
+
+    # I might preprocess this since its so slow and doesn't change too often
+    # returns three values, xpos, ypos and height
+    # getrelativecursorpos + textoffset should always be in the box
+    def getrelativecursorpos(self, cursor=None):
+        if cursor is None:
+            cursor = self.cursor
+        
+        subtext = self.text[0:cursor]
+        splittext = subtext.split("\n")
+        yoffset = 0
+        for line in splittext[:-1]:
+            yoffset += self.font.size(line)[1]
+
+        xoffset = self.font.size(splittext[-1])[0]
+        height = self.font.size(splittext[-1])[1]
+
+        return (xoffset, yoffset, height)
+        
+
+    def handleEvent(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if inRect(event.pos, self.rect):
+                if event.button == 1:
+                    self.infocus = True
+            else:
+                self.infocus = False
+        elif event.type == pygame.KEYDOWN:
+            # TODO: add command and option to backspace and arrow keys
+            if self.infocus:
+                print(event)
+                if event.key == pygame.K_ESCAPE:
+                    self.infocus = False
+                elif event.key == pygame.K_BACKSPACE:
+                    # TODO: implement
+                    pass
+                elif event.key == pygame.K_RIGHT:
+                    self.cursor += 1
+                    if self.cursor > len(self.text):
+                        self.cursor -= 1
+                elif event.key == pygame.K_LEFT:
+                    self.cursor -= 1
+                    if self.cursor < 0:
+                        self.cursor += 1
+                
+                # TODO: update self.textoffset
+    
+    def getState(self):
+        return self.text
+    
+    def reset(self):
+        self.text = self.defaulttext
+
 #############
 ## Globals ##
 #############
