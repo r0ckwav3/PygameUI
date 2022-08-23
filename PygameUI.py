@@ -214,8 +214,7 @@ class Button(UIObject):
             self.rect,
             border_radius=min(self.rect[2],self.rect[3])//3
         )
-        textsurface = self.font.render(self.text, True, self.textcolor)
-        textsurface = self.font.render(self.text, True, self.textcolor, self.bgcolor)
+        textsurface = multilineFontRender(self.font, self.text, True, self.textcolor, self.bgcolor)
         blitrect = [
            self.rect[0] + ((self.rect[2]-textsurface.get_width())//2),
            self.rect[1] + ((self.rect[3]-textsurface.get_height())//2),
