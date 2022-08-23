@@ -498,6 +498,14 @@ class Textfield(UIObject):
                 elif event.key == pygame.K_LEFT:
                     if self.cursor >= 0:
                         self.cursor -= 1
+                elif event.key == pygame.K_RETURN:
+                    self.text = self.text[:self.cursor] + "\n" + self.text[self.cursor:]
+                    self.cursor += 1
+                elif event.key in [pygame.K_UP, pygame.K_DOWN]:
+                    pass
+                else:
+                    self.text = self.text[:self.cursor] + event.unicode + self.text[self.cursor:]
+                    self.cursor += len(event.unicode)
                 
                 # TODO: update self.textoffset
     
