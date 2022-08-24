@@ -523,6 +523,8 @@ class Textfield(UIObject):
                     self.textoffset[1] = -self.rcp[1]
                 elif self.textoffset[1] + self.rcp[1] + self.rcp[2] >= self.rect[3]-self.padding:
                     self.textoffset[1] = self.rect[3]-self.padding-self.rcp[1]-self.rcp[2]
+                
+                self.onUpdate(self.getState())
                     
     
     def getState(self):
@@ -530,6 +532,11 @@ class Textfield(UIObject):
     
     def reset(self):
         self.text = self.defaulttext
+        self.cursor = 0
+        self.textoffset = [0,0]
+
+        self.cursor = 0
+        self.rcp = self.getrelativecursorpos()
 
 #############
 ## Globals ##
