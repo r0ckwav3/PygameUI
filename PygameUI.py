@@ -491,16 +491,59 @@ class Textfield(UIObject):
                     self.infocus = False
                 elif event.key == pygame.K_BACKSPACE:
                     if self.cursor > 0:
-                        self.text = self.text[:self.cursor-1] + self.text[self.cursor:]
-                        self.cursor -= 1
+                        nextcursor = 0 
+                        if event.mod & 1024 or event.mod & 2048: # command
+                            for i in range(self.cursor-1, -1, -1):
+                                if self.text[i] == "\n":
+                                    nextcursor = i
+                                    break
+                        elif event.mod & 256 or event.mod & 512: # option
+                            for i in range(self.cursor-2, -1, -1):
+                                if self.text[i] == "\n" or self.text[i] == " ":
+                                    nextcursor = i
+                                    break
+                        else:
+                            nextcursor = self.cursor - 1
+                        self.text = self.text[:nextcursor] + self.text[self.cursor:]
+                        self.cursor = nextcursor
                         self.rcp = self.getrelativecursorpos()
                 elif event.key == pygame.K_RIGHT:
                     if self.cursor < len(self.text):
-                        self.cursor += 1
+                        if event.mod & 1024 or event.mod & 2048: # command
+                            nextcursor = len(self.text)
+                            for i in range(self.cursor, len(self.text)):
+                                if self.text[i] == "\n":
+                                    nextcursor = i
+                                    break
+                            self.cursor = nextcursor
+                        elif event.mod & 256 or event.mod & 512: # option
+                            nextcursor = len(self.text)
+                            for i in range(self.cursor+1, len(self.text)):
+                                if self.text[i] == "\n" or self.text[i] == " ":
+                                    nextcursor = i
+                                    break
+                            self.cursor = nextcursor
+                        else:
+                            self.cursor += 1
                         self.rcp = self.getrelativecursorpos()
                 elif event.key == pygame.K_LEFT:
                     if self.cursor > 0:
-                        self.cursor -= 1
+                        if event.mod & 1024 or event.mod & 2048: # command
+                            nextcursor = 0
+                            for i in range(self.cursor-1, -1, -1):
+                                if self.text[i] == "\n":
+                                    nextcursor = i+1
+                                    break
+                            self.cursor = nextcursor
+                        elif event.mod & 256 or event.mod & 512: # option
+                            nextcursor = 0
+                            for i in range(self.cursor-2, -1, -1):
+                                if self.text[i] == "\n" or self.text[i] == " ":
+                                    nextcursor = i+1
+                                    break
+                            self.cursor = nextcursor
+                        else:
+                            self.cursor -= 1
                         self.rcp = self.getrelativecursorpos()
                 elif event.key == pygame.K_RETURN:
                     self.text = self.text[:self.cursor] + "\n" + self.text[self.cursor:]
