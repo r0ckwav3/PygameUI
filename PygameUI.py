@@ -524,7 +524,8 @@ class Textfield(UIObject):
                 elif self.textoffset[1] + self.rcp[1] + self.rcp[2] >= self.rect[3]-self.padding:
                     self.textoffset[1] = self.rect[3]-self.padding-self.rcp[1]-self.rcp[2]
                 
-                self.onUpdate(self.getState())
+                if self.onUpdate is not None:
+                    self.onUpdate(self.getState())
                     
     
     def getState(self):
